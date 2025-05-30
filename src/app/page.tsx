@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import 'leaflet/dist/leaflet.css';
 import { useRouter } from 'next/navigation';
 

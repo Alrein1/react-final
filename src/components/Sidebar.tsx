@@ -1,5 +1,5 @@
 import { useGps } from '@/contexts/GpsContext';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Filter } from './Filter';
 import { Search } from './Search';
 import { GpsSession } from '@/types';

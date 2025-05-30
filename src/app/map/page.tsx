@@ -1,13 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import {
-    MapContainer,
-    TileLayer,
-    Polyline,
-    Marker,
-    Popup,
-    useMap,
-} from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useGps } from '@/contexts/GpsContext';
 import { Sidebar } from '@/components/Sidebar';
