@@ -65,6 +65,8 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
     );
     const [onlyUserSessions, setOnlyUserSessions] = useState<boolean>(false);
     const [gpsLocations, setGpsLocations] = useState<GpsLocation[]>([]);
+    const intervalSeconds = 20;
+
     const user = useAuth();
 
     const getGpsSessionTypes = async () => {
@@ -201,7 +203,11 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
         } else {
             getAllGpsSessions();
         }
-        getGpsLocations();
+        const intervalId = setInterval(() => {
+            getGpsLocations();
+        }, intervalSeconds * 1000);
+
+        return () => clearInterval(intervalId);
     }, [selectedSession, onlyUserSessions]);
 
     const searchSessions = (name: string) => {
