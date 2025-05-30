@@ -1,4 +1,5 @@
 'use client';
+
 import {
     deleteGpsSessionApi,
     filterSessionsApi,
@@ -65,6 +66,7 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
     const [onlyUserSessions, setOnlyUserSessions] = useState<boolean>(false);
     const [gpsLocations, setGpsLocations] = useState<GpsLocation[]>([]);
     const user = useAuth();
+
     const getGpsSessionTypes = async () => {
         const sessionTypes = await getGpsSessionTypesApi();
         if (sessionTypes) {
@@ -73,6 +75,7 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
         }
         return false;
     };
+
     const matchSessionTypesWithId = async () => {
         if (!gpsSessionTypes) {
             const types = await getGpsSessionTypesApi();
@@ -87,6 +90,7 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
             }
         }
     };
+
     const getAllGpsSessions = async (): Promise<boolean> => {
         const gpsSessions: GpsSession[] = await getAllGpsSessionsApi();
         if (gpsSessions) {
@@ -95,15 +99,19 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
         }
         return false;
     };
+
     const getGpsSessions = async (): Promise<boolean> => {
         const userName = `${user.user?.firstName} ${user.user?.lastName}`;
-        const userSessions: string[] = JSON.parse(
-            localStorage.getItem(userName) ?? '{}'
-        );
+        let userSessions: string[] = [];
+        if (typeof window !== 'undefined') {
+            userSessions = JSON.parse(localStorage.getItem(userName) ?? '[]');
+        }
+
         if (!(userSessions.length > 0)) {
             setGpsSessions([]);
             return false;
         }
+
         const sessions = await getGpsSessionsApi(userSessions);
         if (sessions) {
             setGpsSessions(sessions);
@@ -112,32 +120,35 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
         }
         return false;
     };
+
     const postGpsSession = async (session: SessionPostFormat) => {
         if (!user.user?.firstName) {
             console.log('Aaaa');
         }
         const token = user.user!.token;
-        console.log(session.gpsSessionTypeId);
         const id = await postGpsSessionApi(session, token);
-        if (id) {
+        if (id && typeof window !== 'undefined') {
             const userName = `${user.user?.firstName} ${user.user?.lastName}`;
-            const userSessions: string[] | null =
-                JSON.parse(localStorage.getItem(userName)!) ?? [];
-            userSessions?.push(id);
+            const userSessions: string[] = JSON.parse(
+                localStorage.getItem(userName) ?? '[]'
+            );
+            userSessions.push(id);
             localStorage.setItem(userName, JSON.stringify(userSessions));
             return true;
         }
         return false;
     };
+
     const putGpsSession = async (session: SessionPutFormat) => {
         const token = user.user!.token;
         const success = await putGpsSessionApi(session, token);
         return success;
     };
+
     const deleteGpsSession = async (id: string) => {
         const token = user.user!.token;
         const success = await deleteGpsSessionApi(id, token);
-        if (success) {
+        if (success && typeof window !== 'undefined') {
             const userName = `${user.user!.firstName} ${user.user!.lastName}`;
             const stored = localStorage.getItem(userName);
             if (stored) {
@@ -150,11 +161,11 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
             setGpsSessions((prev) =>
                 prev.filter((session) => session.id !== id)
             );
-
             return true;
         }
         return false;
     };
+
     const getGpsLocations = async (): Promise<boolean> => {
         if (selectedSession) {
             const res = await getLocationsBySessionId(selectedSession.id);
@@ -163,6 +174,7 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
         }
         return false;
     };
+
     const filterGpsSessions = async (
         params: SessionSearchParams
     ): Promise<boolean> => {
@@ -173,6 +185,7 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
         }
         return false;
     };
+
     const getGpsLocationTypes = async () => {
         const sessionTypes: GpsLocationType[] = await getGpsSessionTypesApi();
         if (sessionTypes) {
@@ -189,25 +202,19 @@ export const GpsProvider = ({ children }: { children: ReactNode }) => {
             getAllGpsSessions();
         }
         getGpsLocations();
-
-        /* if (!selectedSession) return;
-
-        const intervalId = setInterval(async () => {
-            const session = await getGpsSessionByIdApi(selectedSession.id);
-            setSelectedSession(session);
-        }, 2000);
-
-        return () => clearInterval(intervalId); */
     }, [selectedSession, onlyUserSessions]);
+
     const searchSessions = (name: string) => {
-        const filteredSessions = gpsSessions.filter((session) => {
-            return session.name.toLowerCase().includes(name.toLowerCase());
-        });
+        const filteredSessions = gpsSessions.filter((session) =>
+            session.name.toLowerCase().includes(name.toLowerCase())
+        );
         setGpsSessions(filteredSessions);
     };
+
     const clearFilters = () => {
         getAllGpsSessions();
     };
+
     return (
         <GpsContext.Provider
             value={{
