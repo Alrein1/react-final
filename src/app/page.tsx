@@ -1,14 +1,15 @@
 'use client';
-import React from 'react';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-/* L.Marker.prototype.options.icon = ; */
 
 const Home = () => {
     const router = useRouter();
-    router.push('/map');
-    return <div></div>;
+
+    useEffect(() => {
+        router.push('/map');
+    }, [router]);
+
+    return <div>Redirecting...</div>;
 };
 
 export default Home;
